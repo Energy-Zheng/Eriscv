@@ -26,18 +26,18 @@ module eriscv(
 	wire[`InstBus]     id_inst_i;
 	
 	//连接译码阶段ID模块的输出与ID/EX模块的输入
-	wire[`InstBus] inst_o;
-	//wire[`AluOpBus] id_aluop_o;
-	//wire[`AluSelBus] id_alusel_o;
+	//wire[`InstBus] inst_o;
+	wire[`AluOpBus] id_aluop_o;
+	wire[`AluSelBus] id_alusel_o;
 	wire[`RegBus] id_s_op1_o;
 	wire[`RegBus] id_s_op2_o;
 	wire id_reg_we_o;
 	wire[`RegAddrBus] id_reg_waddr_o;
 	
 	//连接ID/EX模块的输出与执行阶段EX模块的输入
-	wire[`InstBus] ex_inst_i;
-	//wire[`AluOpBus] ex_aluop_i;
-	//wire[`AluSelBus] ex_alusel_i;
+	//wire[`InstBus] ex_inst_i;
+	wire[`AluOpBus] ex_aluop_i;
+	wire[`AluSelBus] ex_alusel_i;
 	wire[`RegBus] ex_s_op1_i;
 	wire[`RegBus] ex_s_op2_i;
 	wire ex_reg_we_i;
@@ -107,9 +107,9 @@ module eriscv(
 		.reg2_raddr_o(reg2_raddr), 
 	  
 		//送到ID/EX模块的信息
-		.inst_o(inst_o),
-		//.aluop_o(id_aluop_o),
-		//.alusel_o(id_alusel_o),
+		//.inst_o(inst_o),
+		.aluop_o(id_aluop_o),
+		.alusel_o(id_alusel_o),
 		.s_op1_o(id_s_op1_o),
 		.s_op2_o(id_s_op2_o),
 		.reg_waddr_o(id_reg_waddr_o),
@@ -137,18 +137,18 @@ module eriscv(
 		.rst(rst),
 		
 		//从译码阶段ID模块传递的信息
-		.id_inst(inst_o),
-		//.id_aluop(id_aluop_o),
-		//.id_alusel(id_alusel_o),
+		//.id_inst(inst_o),
+		.id_aluop(id_aluop_o),
+		.id_alusel(id_alusel_o),
 		.id_s_op1(id_s_op1_o),
 		.id_s_op2(id_s_op2_o),
 		.id_reg_waddr(id_reg_waddr_o),
 		.id_reg_we(id_reg_we_o),
 	
 		//传递到执行阶段EX模块的信息
-		.ex_inst(ex_inst_i),
-		//.ex_aluop(ex_aluop_i),
-		//.ex_alusel(ex_alusel_i),
+		//.ex_inst(ex_inst_i),
+		.ex_aluop(ex_aluop_i),
+		.ex_alusel(ex_alusel_i),
 		.ex_s_op1(ex_s_op1_i),
 		.ex_s_op2(ex_s_op2_i),
 		.ex_reg_waddr(ex_reg_waddr_i),
@@ -160,9 +160,9 @@ module eriscv(
 		.rst(rst),
 	
 		//送到执行阶段EX模块的信息
-		.ex_inst(ex_inst_i),
-		//.aluop_i(ex_aluop_i),
-		//.alusel_i(ex_alusel_i),
+		//.ex_inst(ex_inst_i),
+		.aluop_i(ex_aluop_i),
+		.alusel_i(ex_alusel_i),
 		.s_op1_i(ex_s_op1_i),
 		.s_op2_i(ex_s_op2_i),
 		.reg_waddr_i(ex_reg_waddr_i),

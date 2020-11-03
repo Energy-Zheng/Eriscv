@@ -19,7 +19,8 @@ module ex_mem(
 	//from ex	
 	input wire[`RegAddrBus]    ex_reg_waddr,
 	input wire                 ex_reg_we,
-	input wire[`RegBus]        ex_reg_wdata, 	
+	input wire[`RegBus]        ex_reg_wdata,
+	//input wire[`AluOpBus]      ex_aluop 
 	
 	//to mem
 	output reg[`RegAddrBus]    mem_reg_waddr,
@@ -30,17 +31,17 @@ module ex_mem(
 );
 
 
-always @ (posedge clk) begin
-	if(rst == `RstEnable) begin
-		mem_reg_waddr <= `NOPRegAddr;
-		mem_reg_we    <= `WriteDisable;
-		mem_reg_wdata <= `ZeroWord;	
-	end else begin
-		mem_reg_waddr <= ex_reg_waddr;
-		mem_reg_we    <= ex_reg_we;
-		mem_reg_wdata <= ex_reg_wdata;			
-	end
-end  //always
+	always @ (posedge clk) begin
+		if(rst == `RstEnable) begin
+			mem_reg_waddr <= `NOPRegAddr;
+			mem_reg_we    <= `WriteDisable;
+			mem_reg_wdata <= `ZeroWord;	
+		end else begin
+			mem_reg_waddr <= ex_reg_waddr;
+			mem_reg_we    <= ex_reg_we;
+			mem_reg_wdata <= ex_reg_wdata;			
+		end
+	end  //always
 			
 
 endmodule
