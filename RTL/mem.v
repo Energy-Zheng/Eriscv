@@ -29,13 +29,13 @@ module mem(
 	
 always @ (*) begin
 	if(rst == `RstEnable) begin
-		reg_waddr_o <= `NOPRegAddr;
-		reg_we_o <= `WriteDisable;
-		reg_wdata_o <= `ZeroWord;
+		reg_waddr_o = `NOPRegAddr;
+		reg_we_o = `WriteDisable;
+		reg_wdata_o = `ZeroWord;
 	end else begin
-		reg_waddr_o <= reg_waddr_i;
-		reg_we_o <= reg_we_i;
-		reg_wdata_o <= reg_wdata_i;
+		reg_waddr_o = reg_waddr_i;
+		reg_we_o = reg_we_i;
+		reg_wdata_o = reg_wdata_i;
 	end  
 end  //always
 			

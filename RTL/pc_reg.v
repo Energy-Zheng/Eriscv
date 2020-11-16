@@ -12,11 +12,15 @@
 // PC寄存器模块
 module pc_reg(
 
-    input wire clk,
-    input wire rst,
-
-    output reg[`InstAddrBus] pc,  // PC指针
-	output reg ce
+    input wire                  clk,
+    input wire                  rst,
+	
+	//来自译码阶段ID模块的信息
+	input wire                  branch_flag_i,
+	input wire[`RegBus]         branch_addr_i,
+	
+    output reg[`InstAddrBus]    pc,  // PC指针
+	output reg                  ce
 
     );
 	
@@ -32,7 +36,11 @@ module pc_reg(
 		if (ce == `ChipDisable) begin
 			pc <= 32'h00000000;   //指令存储器禁用的时候，pc为0
 		end else begin
-		  	pc <= pc + 4'h4;      //指令存储器使能的时候，pc的值每时钟周期加4
+			if(branch_flag_i == `Branch) begin
+				pc <= branch_addr_i;
+			end else begin 
+				pc <= pc + 4'h4;      //指令存储器使能的时候，pc的值每时钟周期加4
+			end
 		end
 	end
 
