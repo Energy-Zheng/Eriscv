@@ -23,6 +23,7 @@ module id_ex(
 	input wire[`RegAddrBus]       id_reg_waddr,
 	input wire                    id_reg_we,	
 	input wire[`RegBus]           id_link_addr,
+	input wire[`RegBus]           id_mem_offset,
 	
 	//to ex
 	output reg[`AluOpBus]         ex_aluop,
@@ -31,7 +32,8 @@ module id_ex(
 	output reg[`RegBus]           ex_s_op2,
 	output reg[`RegAddrBus]       ex_reg_waddr,
 	output reg                    ex_reg_we,
-	output reg[`RegBus]           ex_link_addr
+	output reg[`RegBus]           ex_link_addr,
+	output reg[`RegBus]           ex_mem_offset
 	
 );
 
@@ -44,6 +46,7 @@ module id_ex(
 			ex_reg_waddr <= `NOPRegAddr;
 			ex_reg_we <= `WriteDisable;
 			ex_link_addr <= `ZeroWord;
+			ex_mem_offset <= `ZeroWord;
 		end 
 		else begin	
 			ex_aluop <= id_aluop;
@@ -53,6 +56,7 @@ module id_ex(
 			ex_reg_waddr <= id_reg_waddr;
 			ex_reg_we <= id_reg_we;	
 			ex_link_addr <= id_link_addr;
+			ex_mem_offset <= id_mem_offset;
 		end
 	end
 	

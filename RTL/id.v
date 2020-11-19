@@ -45,14 +45,19 @@ module id(
 	output reg[`RegAddrBus]     reg_waddr_o,  //写通用寄存器地址
 	output reg                  reg_we_o,     //写通用寄存器使能信号
 	
+	//output wire[`RegBus]        inst_o,       //当前处于译码阶段的指令（供加载存储指令使用）
+	
 	//转移指令需要用到的信息
 	output reg                  branch_flag_o,  //是否发生转移
 	output reg[`RegBus]         branch_addr_o,  //转移到的目标地址      
-	output reg[`RegBus]         link_addr_o     //转移指令要保存的返回地址
+	output reg[`RegBus]         link_addr_o,    //转移指令要保存的返回地址
 	
+	output reg[`RegBus]         mem_offset
 	
 );
 
+	//assign inst_o = inst_i；
+	
 	wire[6:0] opcode = inst_i[6:0];
 	wire[2:0] funct3 = inst_i[14:12];
 	wire[6:0] funct7 = inst_i[31:25];
@@ -71,7 +76,7 @@ module id(
 
 	reg[`RegBus] imm;  //保存指令执行需要的立即数
 	//reg[`RegBus] imm2;
-	reg[`RegBus] mem_offset;
+	//reg[`RegBus] mem_offset;
 	   
 	reg inst_valid;     //指示指令是否有效
 	
@@ -264,8 +269,46 @@ module id(
 						end
 					endcase // funct3
 				end
+				`OP_LOAD : begin
+					case (funct3)
+						`FUNCT3_LB : begin
+							`SET_INST(`EXE_RES_LOAD_STORE, `EXE_LB_OP, `InstValid, 1, rs1, 0, 0, 1, rd, 0, I_imm)
+						end
+						`FUNCT3_LH : begin
+							`SET_INST(`EXE_RES_LOAD_STORE, `EXE_LH_OP, `InstValid, 1, rs1, 0, 0, 1, rd, 0, I_imm)
+						end
+						`FUNCT3_LW : begin
+							`SET_INST(`EXE_RES_LOAD_STORE, `EXE_LW_OP, `InstValid, 1, rs1, 0, 0, 1, rd, 0, I_imm)
+						end
+						`FUNCT3_LBU : begin
+							`SET_INST(`EXE_RES_LOAD_STORE, `EXE_LBU_OP, `InstValid, 1, rs1, 0, 0, 1, rd, 0, I_imm)
+						end
+						`FUNCT3_LHU : begin
+							`SET_INST(`EXE_RES_LOAD_STORE, `EXE_LHU_OP, `InstValid, 1, rs1, 0, 0, 1, rd, 0, I_imm)
+						end
+						default : begin
+						end
+					endcase // funct3
+				end
+				`OP_STORE : begin
+					case (funct3)
+						`FUNCT3_SB : begin
+							`SET_INST(`EXE_RES_LOAD_STORE, `EXE_SB_OP, `InstValid, 1, rs1, 1, rs2, 0, 0, 0, S_imm)
+						end
+						`FUNCT3_SH : begin
+							`SET_INST(`EXE_RES_LOAD_STORE, `EXE_SH_OP, `InstValid, 1, rs1, 1, rs2, 0, 0, 0, S_imm)
+						end
+						`FUNCT3_SW : begin
+							`SET_INST(`EXE_RES_LOAD_STORE, `EXE_SW_OP, `InstValid, 1, rs1, 1, rs2, 0, 0, 0, S_imm)
+						end
+						default : begin
+						end
+					endcase // funct3
+				end
+				
 				default : begin
 				end
+				
 			endcase  //case opcode
 		end  //else
 	end  //always

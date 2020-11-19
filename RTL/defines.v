@@ -11,7 +11,7 @@
 //全局变量
 //--------
 `define RstEnable              1'b1  //复位信号有效
-`define RstDisable             1'b0  //复位信号有效
+`define RstDisable             1'b0  //复位信号无效
 `define ZeroWord               32'h00000000  //32位的数值0
 `define WriteEnable            1'b1  //使能写
 `define WriteDisable           1'b0  //禁止写
@@ -204,4 +204,12 @@
 `define RegNumLog2      5      //寻址通用寄存器使用的地址位数
 `define NOPRegAddr      5'b00000
 
+//------------------
+//数据存储器data_ram
+//------------------
+`define DataAddrBus     31:0    //RAM的地址总线宽度
+`define DataBus         31:0    //RAM的数据总线宽度
+`define DataMemNum      131071  //RAM的实际大小为128KB
+`define DataMemNumLog2  17      //RAM实际使用的地址线宽度
+`define ByteWidth       7:0     //一个字节的宽度，8bit
 

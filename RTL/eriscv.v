@@ -16,63 +16,82 @@ module eriscv(
 	
 	input wire[`RegBus]   rom_data_i,  //从指令存储器取得的指令
 	output wire[`RegBus]  rom_addr_o,  //输出到指令存储器的地址
-	output wire           rom_ce_o     //指令存储器使能信号
+	output wire           rom_ce_o,    //指令存储器使能信号
+	
+	//连接数据存储器data_ram
+	input wire[`RegBus]   ram_data_i,
+	output wire[`RegBus]  ram_addr_o,
+	output wire[`RegBus]  ram_data_o,
+	output wire           ram_we_o,
+	output wire[3:0]      ram_sel_o,
+	output wire[3:0]      ram_ce_o
 	
 );
 
 	//连接IF/ID模块与译码阶段ID模块的变量
-	wire[`InstAddrBus] pc;
-	wire[`InstAddrBus] id_pc_i;
-	wire[`InstBus]     id_inst_i;
+	wire[`InstAddrBus]  pc;
+	wire[`InstAddrBus]  id_pc_i;
+	wire[`InstBus]      id_inst_i;
 	
 	//连接译码阶段ID模块的输出与ID/EX模块的输入
-	wire[`AluOpBus] id_aluop_o;
-	wire[`AluSelBus] id_alusel_o;
-	wire[`RegBus] id_s_op1_o;
-	wire[`RegBus] id_s_op2_o;
-	wire id_reg_we_o;
-	wire[`RegAddrBus] id_reg_waddr_o;
+	wire[`AluOpBus]     id_aluop_o;
+	wire[`AluSelBus]    id_alusel_o;
+	wire[`RegBus]       id_s_op1_o;
+	wire[`RegBus]       id_s_op2_o;
+	wire                id_reg_we_o;
+	wire[`RegAddrBus]   id_reg_waddr_o;
+	wire                id_branch_flag_o;
+	wire[`RegBus]       id_branch_addr_o;
+	wire[`RegBus]       id_link_addr_o;
+	//wire[`RegBus]       id_inst_o;
+	wire[`RegBus]       id_mem_offset_o;
 	
 	//连接ID/EX模块的输出与执行阶段EX模块的输入
-	wire[`AluOpBus] ex_aluop_i;
-	wire[`AluSelBus] ex_alusel_i;
-	wire[`RegBus] ex_s_op1_i;
-	wire[`RegBus] ex_s_op2_i;
-	wire ex_reg_we_i;
-	wire[`RegAddrBus] ex_reg_waddr_i;
+	wire[`AluOpBus]     ex_aluop_i;
+	wire[`AluSelBus]    ex_alusel_i;
+	wire[`RegBus]       ex_s_op1_i;
+	wire[`RegBus]       ex_s_op2_i;
+	wire                ex_reg_we_i;
+	wire[`RegAddrBus]   ex_reg_waddr_i;
+	wire[`RegBus]       ex_link_addr_i;
+	wire[`RegBus]       ex_mem_offset_i;
 	
 	//连接执行阶段EX模块的输出与EX/MEM模块的输入
-	wire ex_reg_we_o;
-	wire[`RegAddrBus] ex_reg_waddr_o;
-	wire[`RegBus] ex_reg_wdata_o;
+	wire                ex_reg_we_o;
+	wire[`RegAddrBus]   ex_reg_waddr_o;
+	wire[`RegBus]       ex_reg_wdata_o;
+	wire[`AluOpBus]     ex_aluop_o;
+	wire[`RegBus]       ex_mem_addr_o;
+	wire[`RegBus]       ex_rt_data_o;
 
 	//连接EX/MEM模块的输出与访存阶段MEM模块的输入
-	wire mem_reg_we_i;
-	wire[`RegAddrBus] mem_reg_waddr_i;
-	wire[`RegBus] mem_reg_wdata_i;
+	wire                mem_reg_we_i;
+	wire[`RegAddrBus]   mem_reg_waddr_i;
+	wire[`RegBus]       mem_reg_wdata_i;
+	wire[`RegBus]       mem_rt_data_i;
+	wire[`AluOpBus]     mem_aluop_i;
+	wire[`RegBus]       mem_mem_addr_i;
 
 	//连接访存阶段MEM模块的输出与MEM/WB模块的输入
-	wire mem_reg_we_o;
-	wire[`RegAddrBus] mem_reg_waddr_o;
-	wire[`RegBus] mem_reg_wdata_o;
+	wire                mem_reg_we_o;
+	wire[`RegAddrBus]   mem_reg_waddr_o;
+	wire[`RegBus]       mem_reg_wdata_o;
 	
 	//连接MEM/WB模块的输出与回写阶段的输入	
-	wire wb_reg_we_i;
-	wire[`RegAddrBus] wb_reg_waddr_i;
-	wire[`RegBus] wb_reg_wdata_i;
+	wire                wb_reg_we_i;
+	wire[`RegAddrBus]   wb_reg_waddr_i;
+	wire[`RegBus]       wb_reg_wdata_i;
 	
 	//连接译码阶段ID模块与通用寄存器Regfile模块
-	wire reg1_re;
-	wire reg2_re;
-	wire[`RegBus] reg1_rdata;
-	wire[`RegBus] reg2_rdata;
-	wire[`RegAddrBus] reg1_raddr;
-	wire[`RegAddrBus] reg2_raddr;
+	wire                reg1_re;
+	wire                reg2_re;
+	wire[`RegBus]       reg1_rdata;
+	wire[`RegBus]       reg2_rdata;
+	wire[`RegAddrBus]   reg1_raddr;
+	wire[`RegAddrBus]   reg2_raddr;
 	
-	wire id_branch_flag_o;
-	wire[`RegBus] id_branch_addr_o;
-	wire[`RegBus] id_link_addr_o;
-	wire[`RegBus] ex_link_addr_i;
+	
+	
   
 	//pc_reg例化
 	pc_reg pc_reg0(
@@ -128,10 +147,13 @@ module eriscv(
 		.s_op2_o(id_s_op2_o),
 		.reg_waddr_o(id_reg_waddr_o),
 		.reg_we_o(id_reg_we_o),
+		//.inst_o(id_inst_o),
 		
 		.branch_flag_o(id_branch_flag_o),
 		.branch_addr_o(id_branch_addr_o),
-		.link_addr_o(id_link_addr_o)
+		.link_addr_o(id_link_addr_o),
+		
+		.mem_offset(id_mem_offset_o)
 	);
 
 	//通用寄存器REGS例化
@@ -162,6 +184,7 @@ module eriscv(
 		.id_reg_waddr(id_reg_waddr_o),
 		.id_reg_we(id_reg_we_o),
 		.id_link_addr(id_link_addr_o),
+		.id_mem_offset(id_mem_offset_o),
 	
 		//传递到执行阶段EX模块的信息
 		.ex_aluop(ex_aluop_i),
@@ -170,7 +193,9 @@ module eriscv(
 		.ex_s_op2(ex_s_op2_i),
 		.ex_reg_waddr(ex_reg_waddr_i),
 		.ex_reg_we(ex_reg_we_i),
-		.ex_link_addr(ex_link_addr_i)
+		.ex_link_addr(ex_link_addr_i),
+		.ex_mem_offset(ex_mem_offset_i)
+		
 	);		
 	
 	//EX模块
@@ -185,12 +210,15 @@ module eriscv(
 		.reg_waddr_i(ex_reg_waddr_i),
 		.reg_we_i(ex_reg_we_i),
 		.link_addr_i(ex_link_addr_i),
+		.mem_offset(ex_mem_offset_i),
 	  
 	  //EX模块的输出到EX/MEM模块信息
 		.reg_waddr_o(ex_reg_waddr_o),
 		.reg_we_o(ex_reg_we_o),
-		.reg_wdata_o(ex_reg_wdata_o)
-		
+		.reg_wdata_o(ex_reg_wdata_o),
+		.aluop_o(ex_aluop_o),
+		.mem_addr_o(ex_mem_addr_o),
+		.rt_data_o(ex_rt_data_o)
 	);
 
 	//EX/MEM模块
@@ -202,13 +230,19 @@ module eriscv(
 		.ex_reg_waddr(ex_reg_waddr_o),
 		.ex_reg_we(ex_reg_we_o),
 		.ex_reg_wdata(ex_reg_wdata_o),
-	
+		
+		.ex_aluop(ex_aluop_o),
+		.ex_mem_addr(ex_mem_addr_o),
+		.ex_rt_data(ex_rt_data_o),
 
 		//送到访存阶段MEM模块的信息
 		.mem_reg_waddr(mem_reg_waddr_i),
 		.mem_reg_we(mem_reg_we_i),
-		.mem_reg_wdata(mem_reg_wdata_i)
-
+		.mem_reg_wdata(mem_reg_wdata_i),
+		
+		.mem_aluop(mem_aluop_i),
+		.mem_mem_addr(mem_mem_addr_i),
+		.mem_rt_data(mem_rt_data_i)
 						       	
 	);
 	
@@ -220,11 +254,25 @@ module eriscv(
 		.reg_waddr_i(mem_reg_waddr_i),
 		.reg_we_i(mem_reg_we_i),
 		.reg_wdata_i(mem_reg_wdata_i),
+		
+		.aluop_i(mem_aluop_i),
+		.mem_addr_i(mem_mem_addr_i),
+		.rt_data_i(mem_rt_data_i),
+	
+		//来自memory的信息
+		.mem_data_i(ram_data_i),
 	  
 		//送到MEM/WB模块的信息
 		.reg_waddr_o(mem_reg_waddr_o),
 		.reg_we_o(mem_reg_we_o),
-		.reg_wdata_o(mem_reg_wdata_o)
+		.reg_wdata_o(mem_reg_wdata_o),
+		
+		//送到memory的信息
+		.mem_addr_o(ram_addr_o),
+		.mem_we_o(ram_we_o),
+		.mem_sel_o(ram_sel_o),
+		.mem_data_o(ram_data_o),
+		.mem_ce_o(ram_ce_o)
 	);
 
   //MEM/WB模块

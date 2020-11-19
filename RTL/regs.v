@@ -47,31 +47,31 @@ end
 //读端口1的读操作
 always @ (*) begin
 	if(rst == `RstEnable) begin
-		rdata1 = `ZeroWord;
+		rdata1 <= `ZeroWord;
 	end else if(raddr1 == `RegNumLog2'h0) begin  
-	  	rdata1 = `ZeroWord;   //如果读取的是$0，那么直接给出0
+	  	rdata1 <= `ZeroWord;   //如果读取的是$0，那么直接给出0
 	end else if((raddr1 == waddr) && (we == `WriteEnable) && (re1 == `ReadEnable)) begin
-		rdata1 = wdata;   //如果要读取的目标寄存器与要写入的目标寄存器是同一个
+		rdata1 <= wdata;   //如果要读取的目标寄存器与要写入的目标寄存器是同一个
 		                   //那么直接将要写入的值作为读寄存器端口的输出
 	end else if(re1 == `ReadEnable) begin
-	    rdata1 = regs[raddr1];
+	    rdata1 <= regs[raddr1];
 	end else begin
-	    rdata1 = `ZeroWord;
+	    rdata1 <= `ZeroWord;
 	end
 end
 
 //读端口2的读操作（与上面类似）
 always @ (*) begin
 	if(rst == `RstEnable) begin
-		rdata2 = `ZeroWord;
+		rdata2 <= `ZeroWord;
 	end else if(raddr2 == `RegNumLog2'h0) begin
-	  	rdata2 = `ZeroWord;
+	  	rdata2 <= `ZeroWord;
 	end else if((raddr2 == waddr) && (we == `WriteEnable) && (re2 == `ReadEnable)) begin
-	  	rdata2 = wdata;
+	  	rdata2 <= wdata;
 	end else if(re2 == `ReadEnable) begin
-	    rdata2 = regs[raddr2];
+	    rdata2 <= regs[raddr2];
 	end else begin
-	    rdata2 = `ZeroWord;
+	    rdata2 <= `ZeroWord;
 	end
 end
 
